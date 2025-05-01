@@ -1,0 +1,16 @@
+n_samples: 250
+
+# Dataset split ratios (must sum to 1)
+train_split_ratio: 0.8
+test_split_ratio: 0.1
+validation_split_ratio: 0.1
+
+datasets:
+  meeting:
+    enabled: true 
+  expert_opinion:
+    enabled: true 
+  politics:
+    enabled: true 
+  natural:
+    enabled: true 

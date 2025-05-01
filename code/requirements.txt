@@ -1,0 +1,23 @@
+openai
+transformers
+datasets
+unsloth
+trl
+bitsandbytes
+triton
+jupyter
+ipywidgets
+pyyaml
+torch
+peft
+tqdm
+huggingface-hub
+numpy
+wandb
+tensorboard
+matplotlib
+xformers 
+pandas
+seaborn
+together
+# run pip install flash-attn afterward

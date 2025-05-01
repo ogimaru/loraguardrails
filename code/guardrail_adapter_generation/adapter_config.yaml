@@ -1,0 +1,61 @@
+# Base model parameters
+model_name: "unsloth/Meta-Llama-3.1-8B-Instruct"
+max_seq_length: 2048
+load_in_4bit: true 
+
+# PEFT model parameters
+r: 16
+target_modules:
+  - "q_proj"
+  - "k_proj"
+  - "v_proj"
+  - "o_proj"
+  - "gate_proj"
+  - "up_proj"
+  - "down_proj"
+lora_alpha: 16
+lora_dropout: 0
+bias: "none"
+use_gradient_checkpointing: true
+random_state: 3407
+use_rslora: false 
+
+# ORPO specific parameters
+beta: 0.1  # Relative ratio loss weight in ORPO loss
+
+# Training parameters
+per_device_train_batch_size: 8
+gradient_accumulation_steps: 1
+warmup_steps: 5
+num_train_epochs: 10
+learning_rate: 2e-4
+dataset_num_proc: 2
+packing: false
+fp16: false
+bf16: true
+logging_steps: 1
+optim: "adamw_8bit"
+weight_decay: 0.01
+lr_scheduler_type: "linear"
+seed: 3407
+report_to: "wandb"  # Use wandb for reporting
+remove_unused_columns: false
+
+# Output and storage parameters
+output_dir: "orpo_lora_adapters"
+adapter_type: "politics" # Specify which adapters to create: options are "politics", "expert_opinion", "meeting"
+dataset_variation: "vary_all"  # Options: "vary_all", "fixed_character", "fixed_history"
+
+# Evaluation parameters
+eval_strategy: "steps"
+eval_steps: 0.1
+save_strategy: "steps"
+save_steps: 0.1   
+eval_batch_size: 16  
+
+# Wandb specific configuration
+wandb_project: "<wandb_project>"
+wandb_entity: "<wandb_entity>"
+wandb_run_name: "<assign run name>"
+wandb_tags: ["guardrail", "orpo"]
+wandb_api_key: "<wandb_api_key>"

@@ -1,0 +1,13 @@
+# Configuration file for evaluating the adapters using LLM-as-judge    
+
+fraction_of_data_examples_to_test: 1.0
+checkpoint_path: ""
+large_llm: "gpt-4o-mini"
+num_runs: 5 
+wanted_behaviors:
+  - meeting 
+  - expert_opinion
+  - politics
+adapter_mode: single #  single, merged
+
+dataset_variation: "vary_all" # Options: "vary_all", "fixed_character", "fixed_history"
