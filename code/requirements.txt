@@ -20,4 +20,3 @@ xformers
 pandas
 seaborn
 together
-# run pip install flash-attn afterward

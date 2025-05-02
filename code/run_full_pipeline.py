@@ -79,8 +79,7 @@ def generate_datasets():
         return False
     
     wait_between_steps(5)
-    
-    # 2. Now temporarily modify config to enable only politics for additional variations
+     
     print("\nPreparing to generate additional variations for politics only")
     
     # Backup the original config

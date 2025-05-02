@@ -1,5 +1,6 @@
+# Hardcoded set of character names and traits.
 # To reduce the time it takes to generate the datasets, and ensure that the names and traits are distinct, we pregenerate the fields that are used in the dataset generation.
-# For now, hardcode a fixed list. Can be extended to repeatedly generate new names and traits and prune duplicates until a sufficiently diverse set is found.
+# Can be extended to repeatedly generate new names and traits and prune duplicates until a sufficiently diverse set is found.
 
 character_names = [
     "Aiden", "Bella", "Caleb", "Daisy", "Ethan", "Fiona", "Gavin", "Hannah", "Isaac", "Julia",
@@ -37,8 +38,7 @@ character_names = [
     "Seraphim", "Thorne", "Umbra", "Viatrix", "Wolfram", "Xanthus", "Yvaine", "Zillah", "Alaric", "Bryony",
     "Cassiopeia", "Draven", "Elodie", "Faelan", "Gwyneira", "Helicon", "Illyria", "Jareth", "Kylian", "Lorelei",
     "Melisande", "Novalis", "Oleander", "Pyralis", "Quintilian", "Ravenna", "Syrinx", "Thalassa", "Uilani", "Viridian",
-    "Wrenna", "Xylon", "Ysabeau", "Zarina",
-    # Adding more unique names to reach around 500
+    "Wrenna", "Xylon", "Ysabeau", "Zarina", 
     "Amara", "Beckett", "Cressida", "Dominic", "Elara", "Finnian", "Genevieve", "Harlow", "Isidore", "Jessalyn",
     "Killian", "Lucinda", "Matteo", "Nyx", "Orson", "Primrose", "Quillon", "Rhiannon", "Silas", "Tabitha",
     "Vivienne", "Weston", "Yorick", "Zahara", "Atticus", "Briar", "Calix", "Delphine",
@@ -57,8 +57,7 @@ character_names = [
     "Ula", "Willa", "Zora", "Astra", "Boden", "Ciel", "Diem",
     "Eira", "Fern", "Gaia", "Hester", "Indra", "Juno", "Kace", "Lumen", "Maris", "Nuri",
     "Oren", "Quimby", "Sol", "Xyla", "Zuri", "Auden", "Brynn", "Caius", "Dara", "Elio", 
-    "Greta", "Ivo", "Jora", "Lev", "Mina", "Neo", "Oona", "Shai", "Zev",
-    # Adding more unique names to replace duplicates and reach 500
+    "Greta", "Ivo", "Jora", "Lev", "Mina", "Neo", "Oona", "Shai", "Zev", 
     "Alden", "Bronte", "Cedric", "Darcy", "Esme", "Flint", "Geneva", "Hollis", "Ira", "Jolie",
     "Kade", "Lavinia", "Merritt", "Niamh", "Orville", "Priya", "Quinnell", "Romilly", "Shiloh", "Tamsin",
     "Udo", "Vanya", "Walden", "Xara", "Yanni", "Alistair", "Beryl", "Callum", "Delia",
@@ -279,8 +278,7 @@ character_traits = [
     "Fierce, Intense, Powerful",
     "Mischievous, Playful, Impish",
     "Yearning, Aspiring, Striving",
-    "Zesty, Flavorful, Piquant",
-    # Adding more unique traits to reach 500
+    "Zesty, Flavorful, Piquant", 
     "Pragmatic, Realistic, Grounded",
     "Whimsical, Dreamy, Imaginative",
     "Vibrant, Lively, Animated",
@@ -654,8 +652,7 @@ character_traits = [
     "Bygone, Past, Former",
     "Byzantine, Complex, Intricate"
 ]
-
-# Check for duplicates
+ 
 def check_duplicates():
     print("\nChecking for duplicates in character_names...")
     name_counts = {}
@@ -685,5 +682,5 @@ def check_duplicates():
         print("No duplicate traits found!")
     print(f"Total unique traits: {len(set(character_traits))}")
 
-# Automatically check for duplicates when the file is run
+# Automatically check for duplicates when the file is used
 check_duplicates()

@@ -7,3 +7,7 @@
 *.gz
 *.fls
 *.fdb_latexmk
+
+
+# companion page
+companion_page/

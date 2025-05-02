@@ -2,8 +2,8 @@
 
 fraction_of_data_examples_to_test: 1.0
 checkpoint_path: ""
-large_llm: "gpt-4o-mini"
-num_runs: 5 
+large_llm: "gpt-4o-mini" # The frontier model referred to as LLM in the manuscript.
+num_runs: 5 # Number of times to run the evaluation
 wanted_behaviors:
   - meeting 
   - expert_opinion

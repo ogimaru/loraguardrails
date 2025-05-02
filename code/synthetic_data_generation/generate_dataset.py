@@ -123,16 +123,16 @@ async def generate_orpo_sample(
             }
 
 class DatasetVariationMode:
-    VARY_ALL = "vary_all"  # Original behavior - vary everything
-    FIXED_CHARACTER = "fixed_character"  # Fix character name and traits, vary conversation and final input
-    FIXED_HISTORY = "fixed_history"  # Fix everything except final user input
+    VARY_ALL = "vary_all"   
+    FIXED_CHARACTER = "fixed_character"  
+    FIXED_HISTORY = "fixed_history"  
 
 async def generate_orpo_dataset(config: DatasetGenerationConfig, guardrail: Guardrail, variation_mode: str = DatasetVariationMode.VARY_ALL):    
     client = AsyncOpenAI()
     dataset = []
     total_input_tokens = 0
     total_output_tokens = 0
-    previous_example = None  # Initialize previous_example
+    previous_example = None 
     
     # Pre-generate character combinations
     available_characters = pregenerate_characters(config.n_samples)

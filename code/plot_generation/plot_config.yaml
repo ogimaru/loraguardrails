@@ -11,8 +11,4 @@ metrics_path: null               # Optional: Specific path to a metrics CSV file
 figure_width: 12
 figure_height: 8
 style: "whitegrid"  # Options: darkgrid, whitegrid, dark, white, ticks
-dpi: 300
-  
-# Metrics to plot (leave empty to plot all available metrics)
-# If specified, only these metrics will be plotted
-metrics_to_plot: [] 
+dpi: 300 

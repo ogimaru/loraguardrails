@@ -15,8 +15,9 @@ class CostLog:
         self.estimated_cost = self.estimate_cost()
 
     def estimate_cost(self):
-        input_price_per_1m_tokens = 0.15  # $0.15 per 1M input tokens
-        output_price_per_1m_tokens = 0.60  # $0.60 per 1M output tokens
+        # NOTE: Quickly outdated prices. 
+        input_price_per_1m_tokens = 0.15 
+        output_price_per_1m_tokens = 0.60  
         input_cost = (self.total_input_tokens / 1_000_000) * input_price_per_1m_tokens
         output_cost = (self.total_output_tokens / 1_000_000) * output_price_per_1m_tokens
         return input_cost + output_cost
