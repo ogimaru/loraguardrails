@@ -11,3 +11,7 @@
 
 # companion page
 companion_page/
+
+
+# virtual environment
+code/.venv/

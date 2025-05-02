@@ -119,7 +119,7 @@ def load_behavior_metrics(adapter_mode: str = "single", behaviors: List[str] = N
 
 def plot_detection_efficiency(metrics_by_behavior, output_file="plots/detection_efficiency.png"):
     """Create plots for detection efficiency using Seaborn."""
-    # Set publication-quality plot parameters
+    
     plt.rcParams.update({
         'figure.figsize': (12, 6),         
         'font.family': 'serif',
@@ -138,8 +138,7 @@ def plot_detection_efficiency(metrics_by_behavior, output_file="plots/detection_
         'axes.spines.top': False,
         'axes.spines.right': False,
     })
-    
-    # Make the figure more compact
+     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6), gridspec_kw={'width_ratios': [2, 1]})
     
     # Define consistent colors
@@ -199,8 +198,6 @@ def plot_detection_efficiency(metrics_by_behavior, output_file="plots/detection_
         politics_detection = metrics_by_behavior['politics'].get('behavior_detection_with_lora', 0) * 100
         llama_guard_detection = metrics_by_behavior['politics_llama_guard'].get('behavior_detection_with_lora', 0) * 100
         
-        # Add both "Politics" bars to the SAME DataFrame we used for the left plot
-        # This ensures absolutely identical treatment by seaborn
         comparison_data = [
             {
                 'Behavior': 'Comparison',  # Using a new category name
@@ -217,7 +214,6 @@ def plot_detection_efficiency(metrics_by_behavior, output_file="plots/detection_
         # Add the comparison data to the same DataFrame
         extended_df = pd.concat([df, pd.DataFrame(comparison_data)], ignore_index=True)
         
-        # Use the same exact plotting approach for the right figure 
         comparison_df = extended_df[extended_df['Behavior'] == 'Comparison']
         sns.barplot(x='Behavior', y='Detection Rate', hue='Type', 
                    data=comparison_df,
@@ -256,7 +252,7 @@ def plot_detection_efficiency(metrics_by_behavior, output_file="plots/detection_
         ]
         # Use figure-level legend instead of axis-level
         # Position it to the right of the y-axis labels of the left figure
-        fig.legend(handles=legend_elements, loc='center left', bbox_to_anchor=(0.15, 0.5), framealpha=0.9, fontsize=20)
+        fig.legend(handles=legend_elements, loc='center left', bbox_to_anchor=(0.35, 0.5), framealpha=0.9, fontsize=20)
     else:
         ax2.set_visible(False)
     

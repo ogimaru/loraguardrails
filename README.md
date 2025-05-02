@@ -15,16 +15,13 @@ code/
 
 ## Environment Setup
 
-We recommend using a Python virtual environment:
+We recommend using a Python virtual environment. Currently only Linux is supported without extra steps.
 
 ```bash
 # Create a virtual environment
 python -m venv venv
 
-# Activate the environment
-# On Windows:
-venv\Scripts\activate
-# On Linux/Mac:
+# Activate the environment 
 source venv/bin/activate
 
 # Install dependencies
@@ -35,26 +32,7 @@ pip install flash-attn
 ```
 
 The workflow will use gpt4o-mini as the frontier LLM alongside Llama Guard hosted by together.ai. Currently the setup requires the API keys to be configured as environment variables.
-
-For Windows (PowerShell):
-```powershell
-# Set OpenAI API key for gpt4-mini
-$env:OPENAI_API_KEY = "your-openai-api-key"
-
-# Set Together API key for LlamaGuard
-$env:TOGETHER_API_KEY = "your-together-api-key"
-```
-
-For Windows (Command Prompt):
-```cmd
-# Set OpenAI API key for gpt4-mini
-set OPENAI_API_KEY=your-openai-api-key
-
-# Set Together API key for LlamaGuard
-set TOGETHER_API_KEY=your-together-api-key
-```
-
-For Linux:
+ 
 ```bash
 # Set OpenAI API key for gpt4-mini
 export OPENAI_API_KEY="your-openai-api-key"

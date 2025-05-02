@@ -1,0 +1,9 @@
+{
+  "politics": {
+    "behavior_detection_with_lora": 0.96,
+    "behavior_detection_without_lora": 0.96,
+    "guard_tag_usage": 0.96,
+    "neutral_detection_with_lora": 1.0,
+    "neutral_detection_without_lora": 0.96
+  }
+}

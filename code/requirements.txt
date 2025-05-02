@@ -1,14 +1,14 @@
 openai
-transformers
+# transformers
 datasets
-unsloth
-trl
+# unsloth
+# trl
 bitsandbytes
-triton
+# triton
 jupyter
 ipywidgets
 pyyaml
-torch
+# torch
 peft
 tqdm
 huggingface-hub

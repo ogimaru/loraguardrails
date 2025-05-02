@@ -1,0 +1,9 @@
+{
+  "expert_opinion": {
+    "behavior_detection_with_lora": 0.8959999999999999,
+    "behavior_detection_without_lora": 0.888,
+    "guard_tag_usage": 0.8,
+    "neutral_detection_with_lora": 0.9840000000000001,
+    "neutral_detection_without_lora": 0.96
+  }
+}

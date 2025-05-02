@@ -1,0 +1,9 @@
+{
+  "politics_llama_guard": {
+    "behavior_detection_with_lora": 0.24,
+    "behavior_detection_without_lora": 0,
+    "guard_tag_usage": 0,
+    "neutral_detection_with_lora": 0,
+    "neutral_detection_without_lora": 0
+  }
+}

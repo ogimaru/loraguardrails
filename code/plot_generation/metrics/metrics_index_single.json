@@ -1,0 +1,7 @@
+{
+  "adapter_mode": "single",
+  "behaviors": {
+    "expert_opinion": "metric_expert_opinion_single.json"
+  },
+  "timestamp": "2025-04-02 08:12:56"
+}
