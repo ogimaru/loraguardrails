@@ -35,7 +35,7 @@ def run_evaluation_for_behavior(behavior: str, variation: str = "vary_all"):
         "testing_lora_adapters.py",
         "--behavior", behavior,
         "--variation", variation,
-        "--adapter-mode", "single"  # Explicitly set single adapter mode
+        "--adapter-mode", "single" 
     ]
     
     print(f"Running command: {' '.join(cmd)}")
@@ -49,8 +49,7 @@ def run_evaluation_for_behavior(behavior: str, variation: str = "vary_all"):
             text=True,
             bufsize=1
         )
-        
-        # Stream output in real-time
+         
         for line in process.stdout:
             print(line, end='')
         

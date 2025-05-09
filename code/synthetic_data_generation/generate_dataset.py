@@ -298,8 +298,7 @@ async def async_main(generate_variations: bool = False):
 
         if generate_variations:
             print(f"\nGenerating variations for {guardrail_type}...")
-            # Only generate the fixed_character and fixed_history variations
-            # Don't generate vary_all again since it's redundant with the standard dataset
+            # Only generate the fixed_character and fixed_history variations 
             variation_modes = [DatasetVariationMode.FIXED_CHARACTER,
                              DatasetVariationMode.FIXED_HISTORY]
         else:

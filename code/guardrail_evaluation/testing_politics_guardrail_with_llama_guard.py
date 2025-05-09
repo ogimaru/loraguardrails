@@ -118,8 +118,7 @@ def test_politics_guardrail(output_file):
                 "neutral_detection_without_lora": 0  # Not applicable 
             }
         }
-
-        # Save metrics in the same format as other evaluations
+ 
         script_dir = os.path.dirname(os.path.abspath(__file__))
         metrics_dir = os.path.join(script_dir, "..", "plot_generation", "metrics")
         os.makedirs(metrics_dir, exist_ok=True)

@@ -261,8 +261,7 @@ def train_and_save_orpo_lora(dataset_name: str, output_dir: str, config: ORPOLoR
         if dataset_variation == "fixed_character":
             variation_suffix = "_fixed_character"
         elif dataset_variation == "fixed_history":
-            variation_suffix = "_fixed_history"
-        # vary_all has no suffix
+            variation_suffix = "_fixed_history" 
         
         dataset_name = f"orpo_{config.adapter_type.replace('-', '_')}{variation_suffix}"
         dataset_path = os.path.join(datasets_dir, dataset_name)

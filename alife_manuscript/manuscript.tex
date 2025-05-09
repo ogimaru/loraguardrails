@@ -140,13 +140,13 @@ Submission type: \textbf{Full Paper}\\
 % If sharing code / data, anonymize your repository and paste the link here.
 % Example of anonymizing sevice for github: https://anonymous.4open.science/
 % delete this line if not needed
-Data/Code available at: \url{http://your.repo.here.com}
+Data/Code available at: \url{https://anonymous.4open.science/r/LlmPersonaGuardrails-BF30}
 
 \section{Introduction}
-The alignment of Large Language Models (LLMs) into instruction-based~\cite{ouyang2022training} and, and subsequent evolution into chat-based interfaces, has popularized them as tools for creating digital agents with convincing artificial life behavior. Instruction-based conditioning allows easy tuning of LLM-based agents, allowing for a more personalized experience. System prompts, a set of hidden instructions, offer an on-the-fly tuning mechanism that has been widely adopted for its ease-of-use and flexibility.
+The alignment of Large Language Models (LLMs) into instruction-based input~\cite{ouyang2022training}, and subsequent evolution into chat-based interfaces, has popularized the models as tools for creating digital agents with convincing artificial life behavior. Instruction-based conditioning allows easy tuning of LLM-based agents, allowing for a more personalized experience. System prompts, a set of hidden instructions, offer an on-the-fly tuning mechanism that has been widely adopted due to its ease-of-use.
 
 Architectural improvements to foundational transformer models~\cite{vaswani2017attention}, allowing for longer context windows, has further enabled hidden instructions containing comprehensive guidelines. Current language models can make use of instructions that account for nuanced descriptions of a human-like agent; featuring biographical data, writing styles and past conversation history. 
-Together with the descriptions, inclusion of a long-term memory mechanism enables a recollection of relevant past interactions can further enhance the illusion of a human-like persona.~\cite{ishikawacapturing} 
+Together with the descriptions, including a long-term memory mechanism enables a recollection of relevant past interactions that further enhance the illusion of a human-like persona.~\cite{ishikawacapturing} 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/introductionDiagram.png}
@@ -155,17 +155,17 @@ Together with the descriptions, inclusion of a long-term memory mechanism enable
 
 Owing to the versatility of on-the-fly adjustments to the input prompt, it scales well when introducing new persona, and outlines the basic guidelines for the LLM-based agent behavior.
 Moreover, ability to incorporate feedback as part of the context further enables sophisticated prompting techniques for e.g., unwanted output correction.~\cite{schulhoff2024prompt}
-Prompt engineering, however, has a well-reported problem of struggling to reliably align the output of an LLM.~\cite{bhargava2023s, cao2024worst}  
+Prompt engineering, however, has a well-reported difficulty to reliably align the output of an LLM.~\cite{bhargava2023s, cao2024worst}  
 Unreliable safeguards pose a significant obstacle as potential misuse, such as harmful politically charged output, is inevitable with a diverse set of users.
 The inability to maintain control of the output is a leading safety concern, that is actively keeping the development of LLM-based persona from being used fully in a commercial setting, and accordingly, has spurred extensive research in safety and alignment.~\cite{ghosh2024aegis,zeng2024shieldgemma,han2024wildguard,inan2023llama}
 
 Providing sets of few-shot examples to prime the LLM, or employing constrained generation~\cite{loulasyntactic, zhao2024probabilistic, lew2023sequential}, have been proposed as alternative methods to avoid unwanted output. Specifically, for increased control, using an exhaustive set of few-shot examples~\cite{agarwal2024many} provide a more robust alignment, and does not result in over-fitting. 
 Aside from curating high-quality examples, a clear downside of this approach is the rising compute cost to process the comprehensive prompts.
 
-With the hurdles posed by prompt engineering, a natural alternative is to fine-tune model weights. By preparing a dataset of input-output pairs that are representative of a character, the approach has the potential of not only enabling mimicry, but also engineering the domain knowledge of characters~\cite{zhang2023instruction, shao2023character}.
+With the hurdles posed by prompt engineering, a natural alternative is to fine-tune model weights. By preparing a dataset of input-output pairs that are representative of a character. The fine-tuning approach has the potential of not only enabling mimicry, but also engineering the domain knowledge of characters~\cite{zhang2023instruction, shao2023character}.
 The potentially more robust alignment, however, requires preparing a dataset for each persona, and risks overfitting on a fixed input. The additional cost associated with a new persona description, and the removal of real-time changes to the descriptions, are significant drawbacks.
 
-This work presents a method for aligning LLMs using instruction fine-tuning and preference optimization, creating reliable safeguards (guardrails) while maintaining flexible persona instructions. We carefully prepare training data for generalization and outline a framework where a single guardrail definition aligns the model. Meta-prompts automate synthetic dataset creation for generating Low-Rank Adaptation (LoRA) weights, synonymously referred to as guardrail adapters.  
+This work presents a method for aligning LLMs using instruction fine-tuning and preference optimization, creating reliable safeguards while maintaining flexible persona instructions. We carefully prepare training data for generalization and outline a framework where a single guardrail definition aligns the model. Meta-prompts automate synthetic dataset creation for generating Low-Rank Adaptation (LoRA) weights, synonymously referred to as guardrail adapters.  
 
 In addition, as part of the framework, we assess the guardrail efficacy, and find a consistent and reliable adherence to the desired behaviors when the guardrail adapters are applied, without a sizeable impact on the natural, safe, conversations.
 

@@ -27,33 +27,7 @@ def extract_metrics_from_reports():
                 print(f"  - {f} (modified: {pd.Timestamp.fromtimestamp(os.path.getmtime(f))})")
                 all_report_files.append((f, variation))
     
-    if not all_report_files:
-        print("No variation-specific report files found. Checking for any report files...")
-        # If no variation-specific files found, look for any scoring files
-        all_scoring_files = glob.glob(os.path.join("behavior_reports", "**", "*scoring.txt"), recursive=True)
-        if all_scoring_files:
-            print(f"Found {len(all_scoring_files)} generic report files:")
-            for f in all_scoring_files:
-                print(f"  - {f} (modified: {pd.Timestamp.fromtimestamp(os.path.getmtime(f))})")
-                # Try to determine variation from filename
-                for variation in ["vary_all", "fixed_character", "fixed_history"]:
-                    if variation in f:
-                        all_report_files.append((f, variation))
-                        break
-                else:
-                    # If variation not found in filename, will try to determine from content
-                    all_report_files.append((f, None))
-        else:
-            print("No report files found at all.")
-            if os.path.exists("behavior_reports"):
-                direct_reports = os.listdir("behavior_reports")
-                print(f"Files in behavior_reports: {direct_reports}")
-                # Also check subdirectories 
-                for subdir in direct_reports:
-                    if os.path.isdir(os.path.join("behavior_reports", subdir)):
-                        print(f"Files in behavior_reports/{subdir}: {os.listdir(os.path.join('behavior_reports', subdir))}")
-            
-            return pd.DataFrame(columns=['behavior', 'variation', 'mode', 'overall_accuracy', 'behavior_accuracy', 'natural_accuracy', 'guard_tags'])
+ 
     
     # Process each report file
     for report_file, file_variation in all_report_files:
@@ -84,28 +58,8 @@ def extract_metrics_from_reports():
             elif "politics" in report_file:
                 behavior = "politics"
             elif "meeting" in report_file:
-                behavior = "meeting"
-            else:
-                # Fall back to previous method
-                filename_parts = filename.split('_')
-                if len(filename_parts) > 1:
-                    behavior_candidate = filename_parts[1]
-                    if behavior_candidate in ["politics", "expert_opinion", "meeting"]:
-                        behavior = behavior_candidate
-            
-            # If variation is not found from the filename, try to determine from content
-            if variation is None:
-                with open(report_file, 'r') as f:
-                    content = f.read()
-                    for var in ["vary_all", "fixed_character", "fixed_history"]:
-                        if var in content:
-                            variation = var
-                            print(f"  - Determined variation from content: {variation}")
-                            break
-                    else:
-                        variation = "unknown"
-                        print(f"  - Could not determine variation from content")
-            
+                behavior = "meeting"  
+
             # Extract metrics from file
             with open(report_file, 'r') as f:
                 content = f.read()
@@ -129,8 +83,7 @@ def extract_metrics_from_reports():
                         'overall_accuracy': float(overall_acc_match.group(1)) if overall_acc_match else 0.0,
                         'behavior_accuracy': float(behavior_acc_match.group(1)) if behavior_acc_match else 0.0,
                         'natural_accuracy': float(natural_acc_match.group(1)) if natural_acc_match else 0.0,
-                        'guard_tags': float(guard_tags_match.group(1)) if guard_tags_match else 0.0,
-                        # Add the baseline metrics
+                        'guard_tags': float(guard_tags_match.group(1)) if guard_tags_match else 0.0, 
                         'behavior_accuracy_without_lora': float(behavior_acc_without_lora_match.group(1)) if behavior_acc_without_lora_match else 0.0,
                         'natural_accuracy_without_lora': float(natural_acc_without_lora_match.group(1)) if natural_acc_without_lora_match else 0.0,
                     }
@@ -138,7 +91,7 @@ def extract_metrics_from_reports():
                     print(f"  - Extracted metrics: {metrics_info}")
                     metrics.append(metrics_info)
                 else:
-                    # Check if baseline metrics were found even if 'with LoRA' were not (less likely but possible)
+                    # Check if baseline metrics were found even if 'with LoRA' were not
                     if behavior_acc_without_lora_match or natural_acc_without_lora_match:
                          metrics_info = {
                             'behavior': behavior,
@@ -218,8 +171,7 @@ def compare_and_rank_results():
         # Filter for the specific variation (e.g., 'vary_all')
         df_vary_all = metrics_df[metrics_df['variation'] == 'vary_all'].copy()
         
-        behaviors_order = ['meeting', 'politics', 'expert_opinion']
-        # Use nicer names for display
+        behaviors_order = ['meeting', 'politics', 'expert_opinion'] 
         behavior_display_map = {'meeting': 'Meeting', 'politics': 'Politics', 'expert_opinion': 'Expert-Opinion'}
         
         table1_data = {}
@@ -232,7 +184,7 @@ def compare_and_rank_results():
         single_data = df_vary_all[df_vary_all['mode'] == 'single'].set_index('behavior')['behavior_accuracy'].to_dict()
         table1_data['Single Adapter'] = {behavior_display_map.get(b, b): single_data.get(b, pd.NA) for b in behaviors_order}
 
-        # Get Merged Adapter (assuming SVD)
+        # Get Merged Adapter (SVD)
         merged_data = df_vary_all[df_vary_all['mode'] == 'merged_svd'].set_index('behavior')['behavior_accuracy'].to_dict()
         table1_data['Merged Adapter'] = {behavior_display_map.get(b, b): merged_data.get(b, pd.NA) for b in behaviors_order}
 
@@ -258,10 +210,10 @@ def compare_and_rank_results():
             # Select and rename columns according to Table 2
             table2_df = df_single_vary_all[[
                 'behavior', 
-                'behavior_accuracy',              # LoRA column
-                'natural_accuracy',              # Neutral column
-                'behavior_accuracy_without_lora', # Base column
-                'guard_tags'                     # Tags column
+                'behavior_accuracy',              
+                'natural_accuracy',              
+                'behavior_accuracy_without_lora', 
+                'guard_tags'                     
             ]].copy()
             
             table2_df.rename(columns={
@@ -275,11 +227,9 @@ def compare_and_rank_results():
             # Use nicer behavior names
             behavior_display_map_t2 = {'meeting': 'Meeting', 'politics': 'Politics', 'expert_opinion': 'Expert Op.'}
             table2_df['Guardrail'] = table2_df['Guardrail'].map(behavior_display_map_t2).fillna(table2_df['Guardrail'])
-
-            # Set index to behavior for potentially easier ordering (optional)
+ 
             table2_df = table2_df.set_index('Guardrail')
-            
-            # Reorder rows if needed (optional, based on desired presentation)
+             
             desired_row_order = ['Politics', 'Meeting', 'Expert Op.']
             table2_df = table2_df.reindex([idx for idx in desired_row_order if idx in table2_df.index])
 
@@ -288,8 +238,7 @@ def compare_and_rank_results():
             print("Could not generate Table 2: No data found for 'single' mode and 'vary_all' variation.")
             
     except Exception as e:
-        print(f"Could not generate Table 2 due to error: {e}")
-    # --- End: Manuscript Table 2 ---
+        print(f"Could not generate Table 2 due to error: {e}") 
 
     # Save results to CSV
     output_file = "variation_comparison_results.csv"
