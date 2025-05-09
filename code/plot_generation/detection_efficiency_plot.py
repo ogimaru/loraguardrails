@@ -195,13 +195,16 @@ def plot_detection_efficiency(metrics_by_behavior, output_file="plots/detection_
         baseline = metrics_by_behavior[behavior].get('behavior_detection_without_lora', 0) * 100
         guardrail = metrics_by_behavior[behavior].get('behavior_detection_with_lora', 0) * 100
         
+        # Replace underscore with space for plot labeling
+        plot_label = behavior.replace("_", " ").capitalize()
+
         data.append({
-            'Behavior': behavior.capitalize(),
+            'Behavior': plot_label, # Use modified label
             'Detection Rate': baseline,
             'Type': 'Baseline'
         })
         data.append({
-            'Behavior': behavior.capitalize(),
+            'Behavior': plot_label, # Use modified label
             'Detection Rate': guardrail,
             'Type': 'With Guardrail'
         })

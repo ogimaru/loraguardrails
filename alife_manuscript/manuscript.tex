@@ -58,8 +58,8 @@
 
 
 % my vars
-\newcommand{\allm}{OpenAI's gpt4o-mini}  % Define the variable
-\newcommand{\fullallm}{gpt-4o-mini-2024-07-18}
+\newcommand{\allm}{OpenAI's gpt4o-mini} 
+\newcommand{\fullallm}{gpt-4o-mini-2024-07-18} % full model name at time of dataset generation and evaluation
 \newcommand{\slmm}{LLaMA 3.1 8B-Instruct} 
 
 \newcommand{\singleAdapterPoliticsLoraSemiFixed}{100.0}
@@ -140,7 +140,7 @@ Submission type: \textbf{Full Paper}\\
 % If sharing code / data, anonymize your repository and paste the link here.
 % Example of anonymizing sevice for github: https://anonymous.4open.science/
 % delete this line if not needed
-Data/Code available at: \url{https://anonymous.4open.science/r/LlmPersonaGuardrails-BF30}
+Code available at: \url{https://anonymous.4open.science/r/LlmPersonaGuardrails-BF30}
 
 \section{Introduction}
 The alignment of Large Language Models (LLMs) into instruction-based input~\cite{ouyang2022training}, and subsequent evolution into chat-based interfaces, has popularized the models as tools for creating digital agents with convincing artificial life behavior. Instruction-based conditioning allows easy tuning of LLM-based agents, allowing for a more personalized experience. System prompts, a set of hidden instructions, offer an on-the-fly tuning mechanism that has been widely adopted due to its ease-of-use.
@@ -181,7 +181,7 @@ Consequently, we generate, and store separately, LoRA adapters corresponding to 
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[width=1.0\linewidth]{figures/datagenSchematic.png}
-	\caption{Schematic of the guardrail framework. The target LLM (SLM) uses the auxiliary frontier LLM to generate a synthetic fine-tuning dataset. 
+	\caption{Schematic of the guardrail framework. The target model, SLM, uses the auxiliary frontier LLM to generate a synthetic fine-tuning dataset. 
 		The prompt template and guardrail definition are used to generate example instances, which are used to produce associated LoRA adapters $G_1, G_2, \ldots, G_N$ for the SLM.}\label{fig:method-schematic-label}
 \end{figure} 
 \subsection{Synthetic dataset generation}
@@ -237,16 +237,16 @@ Secondly, for each input we generate (1) a response which fully adheres to the g
 In place of actively probing for the triggers of this unwanted behavior, and regenerating the output, our aim is for the guardrail to ensure that the output naturally recognizes the trigger and resolves the situation by e.g., diverting the conversation into a related, safe, topic.
 The process is tied together with the guardrail object, the core of our work. It is a minimal data structure, containing only the trigger and resolution instructions, and works as the principal input for the automated fine-tuning process.
 
-To illustrate the idea concretely, we describe in the following a guardrail targeting a context-dependent behavior. Because of the inherent inability to physically engage with the user, we consider a guardrail that is triggered when a user tries to arrgance a meeting in person, and is designed to divert any attempts into a related topic. 
-See~\ref{guardrail-meeting}. 
+To illustrate the idea concretely, we describe in the following a guardrail targeting a context-dependent behavior. Because of the inherent inability to physically engage with the user, we consider a guardrail that is triggered when a user tries to arrange a meeting in person, and is designed to divert any attempts into a related topic.  
+
 Moreover, to check that a trigger has successfully activated a guardrail-induced output, we include in all resolution instructions that a custom $\langle$ guard $\rangle$ tag is prepended to the reply.
 Finally, since we use \slmm~to generate our responses, we ensure our input respects the expected format~\cite{llama_format} by performing an additional post-processing step on the dataset entries.
 
 \subsection{Evaluation}
 To assess guardrail adapter efficacy, we evaluate performance using the LLM as a judge, guided by the guardrail definition. We verify guard activation is tied to valid triggers, and not due to an over conservative safeguard, using a test set with both triggering and neutral (unaffected output expected) conversations.
-In total, four types of evaluation are carried out for each guardrail: (1) triggering conversation with guardrail adapter applied, (2) triggering conversation without guardrail adapter applied, (3) neutral conversation with guardrail adapter applied, (4) neutral conversation without guardrail adapter applied.
+In total, four types of evaluation are carried out for each guardrail: (1) triggering conversation with adapter applied, (2) triggering conversation without adapter applied, (3) neutral conversation with adapter applied, (4) neutral conversation without adapter applied.
 
-Neutral conversations should result in a coherent response that is unaffected by the guardrail, while conversations with triggering final user input should generate a response that adheres to the resolution instructions and has a guard tag prepended. See Appendix~\ref{app:evaluation-prompt} for details.
+Neutral conversations should result in a coherent response that is unaffected by the guardrail, while conversations with triggering final user input should generate a response that adheres to the resolution instructions and has a guard tag prepended. See supplementary material for the evaluation prompt details.
 
 As a proof of principle, we focus our evaluation on three guardrails pertinent to our LLM-based persona use case: agree to in-person meetings, engaging in political discussions, and offering expert advice, described in the following.
 
@@ -281,11 +281,13 @@ The expert advice guardrail will be triggered when a user is requesting advice o
 
 \subsubsection{Politics}
 One leading challenge in user-AI interaction is the innate bias present in LLMs. Owing to this bias, discussing politics is a particularly precarious context that can easily lead to problematic conversations.
-In the third and final example, we consider any invitation to discussing politics a trigger, and develop the adapter to ensure that the following output firmly refuses to engage in political discussion, and changes the subject to an unrelated neutral topic abruptly. The definition of triggers and resolutions for the three guardrails considered in this work is provided in Appendix~\ref{app:guardrail-definitions}.
+In the third and final example, we consider any invitation to discussing politics a trigger, and develop the adapter to ensure that the following output firmly refuses to engage in political discussion, and changes the subject to an unrelated neutral topic abruptly. 
+
+The full definition of triggers and resolutions for the three guardrails considered in this work is provided in supplementary material.
 \begin{figure*}[!ht]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figures/training_eval_metrics_comparison.png}
-	\caption{Training metrics for behavior guardrails. (top) Fine-tuning loss for LoRA adapters across different behaviors, showing convergence after 10 epochs. (bottom) Odds ratio loss demonstrates effective preference optimization despite increasing negative-likelihood-loss. }\label{fig:training-metrics}
+	\caption{Training metrics for behavior guardrails. (top) Fine-tuning loss for LoRA adapters across different behaviors, showing convergence after 10 epochs. (bottom) Odds ratio loss (preference loss) demonstrates effective preference optimization despite increasing negative-likelihood-loss. }\label{fig:training-metrics}
 \end{figure*}
 \subsection{Adapter generation}
 We use ORPO to fine-tune the SLM, and use the triplet of input, guardrail-adhering and actively guardrail-breaking response as training data. The objective function in ORPO consists of two terms: a supervised fine-tuning loss $\mathcal{L}_{SFT}$ that follows the conventional negative log-likelihood loss, and an odds ratio loss $\mathcal{L}_{OR}$ which is related to the odds ratio between accepted response $y_a$ and the rejected response $y_r$:
@@ -384,13 +386,20 @@ Finally, while our method uses a dataset of coherent and plausible conversations
 Quantifying the impact of synthetic datasets when compared with a comprehensive set of curated conversations is an interesting direction for future work. 
 
 \section{Conclusions}
-This work demonstrates an automated pipeline for preparing and evaluating modular LoRA-based guardrails for LLMs, compatible with flexible input prompt templates. Our approach allows contextual information (e.g., retrieved memories, dynamic persona traits) to be defined independently of the guardrails.
-Moreover, the guardrails are provided as LoRA adapters that can be applied to the base model on-the-fly, enabling development of a modular guardrail framework.
+This work demonstrates an automated pipeline for preparing and evaluating modular LoRA-based guardrails for LLMs, compatible with flexible input prompt templates. Our approach allows contextual information (e.g., retrieved memories, dynamic character traits) to be defined independently of the guardrails.
+Moreover, the guardrails are LoRA adapters that can be applied to the base model on-the-fly, enabling the development of a modular guardrail framework.
 
-We emphasize that the proposed LoRA guardrails do not only detect problematic dialogue but, with the resolution definitions, allow for dealing with it coherently in-character without the need for discarding and regenerating output.
+We emphasize that the proposed guardrail adapters do not only detect problematic dialogue but, with the resolution definitions, allow for dealing with it coherently in-character without the need for discarding and regenerating output.
 Beyond the use case we outline in this work, the method and guardrail adapters are more generic and can be applied to any human-AI interface where maintaining consistent, and contextually appropriate, behavior is important.  
-There is also a distinct advantage to using a synthetic dataset. Unlike the limited examples described in this work, where we focused on a smaller target LLMs, for larger models that can generate a high-quality training dataset, the outlined method can be used for self-alignment. 
-The alignment works also with templated system prompts and user inputs. We believe this is a promising direction to enhance the safety and robustness of general LLM-based human-AI interaction, while still leaving room for creative freedoms and personalization that is important when developing artificial characters. 
+
+While beyond the scope of this work, we note that there is a distinct advantage to using the outlined synthetic dataset generation. As the smaller language models become capable of generating high-quality conversations, a natural extension of the outlined method is to substitute the LLM with the smaller model to enable self-alignment.
+
+We believe this is a promising direction to enhance the safety and robustness of general LLM-based human-AI interaction, while still leaving room for creative freedoms and personalization, key ingredients when designing artificial characters.
+
+
+\section{Acknowledgments}
+The authors would like to thank anonymous for their constructive feedback on the initial drafts, and anonymous for their feedback and  testing of the automated guardrail generation and evaluation scripts. 
+
 \footnotesize
 \bibliographystyle{apalike}
 \bibliography{loraguardrail}
@@ -398,7 +407,7 @@ The alignment works also with templated system prompts and user inputs. We belie
 \onecolumn
 \appendix 
 \section{Supplementary material}\label{app:appendix}
-\subsection{Guardrail definitions}\label{app:guardrail-definitions}
+\subsection{S1 Guardrail definitions}\label{app:guardrail-definitions}
 We provide the guardrail definitions mentioned in the main text as they are expressed in the python code, to highlight the object's simplicity. In each resolution instructions, we consistently include that a custom $\langle$ guard $\rangle$ tag is prepended to the reply. 
 
 \begin{tcolorbox}[colback=gray!10, colframe=gray!80, width=\textwidth, title=Guardrails considered in this work, left=1mm, right=0mm, boxsep=0mm, before skip=0pt, after skip=0.0ex, top=1mm, bottom=1mm]
@@ -452,8 +461,8 @@ POLITICS_GUARDRAIL = Guardrail(
 \end{lstlisting}
 \end{tcolorbox}
 
-\subsection{Evaluation prompt}\label{app:evaluation-prompt}
-The LLM-as-judge approach used to automate the initial validation of the guardrail adapter functions uses a single input prompt. To facilitate parsing, the evaluation is output as a JSON object with a required structure (containing fields like `is valid`, `adheres to behavior`, and `explanation`).
+\subsection{S2 Evaluation prompt}\label{app:evaluation-prompt}
+The LLM-as-judge approach used to automate the initial validation of the guardrail adapter functions uses a single input prompt. To facilitate parsing, the evaluation is output as a JSON object with a required structure (containing fields like `is valid', `adheres to behavior', and `explanation').
 \begin{tcolorbox}[colback=gray!10, colframe=gray!80, width=\textwidth, title=Evaluation prompt, left=1mm, right=0mm, boxsep=0mm, before skip=0.2ex, after skip=0.0ex, top=1mm, bottom=1mm]
 \begin{lstlisting}[breaklines=true, basicstyle=\ttfamily\scriptsize, breakatwhitespace=true, xleftmargin=0pt, xrightmargin=0pt, aboveskip=0pt, belowskip=0pt]
 evaluation_prompt = f"""You are an AI behavior evaluator. 
