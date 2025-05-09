@@ -68,11 +68,12 @@
 \newcommand{\singleAdapterPoliticsLoraFixed}{100.0}
 \newcommand{\tagDetectionPoliticsFixed}{68.0}
 
-\newcommand{\finetuningSamples}{200}
-\newcommand{\guardrailSamples}{200}
+\newcommand{\finetuningSamples}{200} 
 \newcommand{\testingSamples}{25}
+\newcommand{\validationSamples}{25}
 \newcommand{\finetuningEpochsDefault}{10}
-\newcommand{\finetuningEpochsLong}{50}
+\newcommand{\oddsWeight}{0.1}
+
 \newcommand{\evaluationRuns}{5}
 
 \newcommand{\baselineMeeting}{8.0}
@@ -97,7 +98,6 @@
 
 \pgfmathsetmacro{\minGuardrailMergedEfficiency}{min (\guardrailMergedEfficiencyMeeting, \guardrailMergedEfficiencyPolitics, \guardrailMergedEfficiencyExpert)}
 
-\newcommand{\oddsWeight}{0.1}
 
 
 
@@ -235,9 +235,8 @@ For each instance, the LLM will generate a conversation history and memory relat
 \end{center}
 Secondly, for each input we generate (1) a response which fully adheres to the guardrail definition, and (2) an orthogonal response that actively strives to engage in the unwanted behavior.  
 In place of actively probing for the triggers of this unwanted behavior, and regenerating the output, our aim is for the guardrail to ensure that the output naturally recognizes the trigger and resolves the situation by e.g., diverting the conversation into a related, safe, topic.
-The process is tied together with the guardrail object, the core of our work. It is a minimal data structure, containing only the trigger and resolution instructions, and works as the principal input for the automated fine-tuning process.
 
-To illustrate the idea concretely, we describe in the following a guardrail targeting a context-dependent behavior. Because of the inherent inability to physically engage with the user, we consider a guardrail that is triggered when a user tries to arrange a meeting in person, and is designed to divert any attempts into a related topic.  
+The process is tied together with the guardrail object, the core of our work. It is a minimal data structure, containing only the trigger and resolution instructions, and works as the principal input for the automated fine-tuning process. To illustrate the idea concretely, we describe in the following a guardrail targeting a context-dependent behavior. Because of the inherent inability to physically engage with the user, we consider a guardrail that is triggered when a user tries to arrange a meeting in person, and is designed to divert any attempts by redirecting the conversation towards a related safe topic.  
 
 Moreover, to check that a trigger has successfully activated a guardrail-induced output, we include in all resolution instructions that a custom $\langle$ guard $\rangle$ tag is prepended to the reply.
 Finally, since we use \slmm~to generate our responses, we ensure our input respects the expected format~\cite{llama_format} by performing an additional post-processing step on the dataset entries.
@@ -276,7 +275,7 @@ This behavior is an suitable example to illustrate how the guardrails can be imp
 In this work, we prepare a guardrail adapter that treats any suggestion by the user to meet in person as a trigger. When a triggering message appears, the adapter ensures that the next output clearly declines the request and diverts the conversation naturally to a related topic.
 
 \subsubsection{Expert advice}
-A well-known problem occurs when users request expert advice on topics beyond the language model's knowledge domain. Despite not begin pre-trained on data related to the topic, an LLM is able to generate coherent and convincing answers, that are ultimately not grounded in real knowledge. Therefore, it can be crucial to ensure that any request to give expert advice is disregarded. 
+A known problem occurs when users request expert advice on topics beyond the language model's knowledge domain. Despite not begin pre-trained on data related to the topic, an LLM is able to generate coherent and convincing answers, that are ultimately not grounded in real knowledge. Therefore, it can be crucial to ensure that any request to give expert advice is disregarded. 
 The expert advice guardrail will be triggered when a user is requesting advice on a topic that requires expert knowledge. The resolution is to explicitly state that advice cannot be given and demonstrating ignorance of the topic. Conversations should naturally continue by redirecting the topic to less complex themes.
 
 \subsubsection{Politics}
@@ -287,7 +286,7 @@ The full definition of triggers and resolutions for the three guardrails conside
 \begin{figure*}[!ht]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figures/training_eval_metrics_comparison.png}
-	\caption{Training metrics for behavior guardrails. (top) Fine-tuning loss for LoRA adapters across different behaviors, showing convergence after 10 epochs. (bottom) Odds ratio loss (preference loss) demonstrates effective preference optimization despite increasing negative-likelihood-loss. }\label{fig:training-metrics}
+	\caption{Training metrics for behavior guardrails. (top) Fine-tuning loss for LoRA adapters across different behaviors, showing convergence after 10 epochs. (bottom) Odds ratio loss (preference loss) demonstrates effective preference optimization even during increasing negative-likelihood-loss, in-line with the LLM-as-judge results. }\label{fig:training-metrics}
 \end{figure*}
 \subsection{Adapter generation}
 We use ORPO to fine-tune the SLM, and use the triplet of input, guardrail-adhering and actively guardrail-breaking response as training data. The objective function in ORPO consists of two terms: a supervised fine-tuning loss $\mathcal{L}_{SFT}$ that follows the conventional negative log-likelihood loss, and an odds ratio loss $\mathcal{L}_{OR}$ which is related to the odds ratio between accepted response $y_a$ and the rejected response $y_r$:
