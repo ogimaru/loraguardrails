@@ -110,26 +110,51 @@ def extract_metrics_from_reports():
             with open(report_file, 'r') as f:
                 content = f.read()
                 
+                # Extract "with LoRA" metrics
                 overall_acc_match = re.search(r'Overall accuracy with LoRA:\s+(\d+\.\d+)%', content)
                 behavior_acc_match = re.search(r'Behavior adherence with LoRA:\s+(\d+\.\d+)%', content)
                 natural_acc_match = re.search(r'Natural accuracy with LoRA:\s+(\d+\.\d+)%', content)
                 guard_tags_match = re.search(r'Guard tag detection rate:\s+(\d+\.\d+)%', content)
                 
-                if overall_acc_match:
+                # Extract "without LoRA" metrics (baseline performance)
+                behavior_acc_without_lora_match = re.search(r'Behavior adherence without LoRA:\s+(\d+\.\d+)%', content)
+                natural_acc_without_lora_match = re.search(r'Natural accuracy without LoRA:\s+(\d+\.\d+)%', content)
+                
+                # Use the first found set of metrics as the primary check for validity
+                if overall_acc_match or behavior_acc_match or natural_acc_match or guard_tags_match:
                     metrics_info = {
                         'behavior': behavior,
                         'variation': variation,
                         'mode': mode,
-                        'overall_accuracy': float(overall_acc_match.group(1)) if overall_acc_match else 0,
-                        'behavior_accuracy': float(behavior_acc_match.group(1)) if behavior_acc_match else 0,
-                        'natural_accuracy': float(natural_acc_match.group(1)) if natural_acc_match else 0,
-                        'guard_tags': float(guard_tags_match.group(1)) if guard_tags_match else 0
+                        'overall_accuracy': float(overall_acc_match.group(1)) if overall_acc_match else 0.0,
+                        'behavior_accuracy': float(behavior_acc_match.group(1)) if behavior_acc_match else 0.0,
+                        'natural_accuracy': float(natural_acc_match.group(1)) if natural_acc_match else 0.0,
+                        'guard_tags': float(guard_tags_match.group(1)) if guard_tags_match else 0.0,
+                        # Add the baseline metrics
+                        'behavior_accuracy_without_lora': float(behavior_acc_without_lora_match.group(1)) if behavior_acc_without_lora_match else 0.0,
+                        'natural_accuracy_without_lora': float(natural_acc_without_lora_match.group(1)) if natural_acc_without_lora_match else 0.0,
                     }
                     
                     print(f"  - Extracted metrics: {metrics_info}")
                     metrics.append(metrics_info)
                 else:
-                    print(f"  - No metrics found in this file")
+                    # Check if baseline metrics were found even if 'with LoRA' were not (less likely but possible)
+                    if behavior_acc_without_lora_match or natural_acc_without_lora_match:
+                         metrics_info = {
+                            'behavior': behavior,
+                            'variation': variation,
+                            'mode': mode,
+                            'overall_accuracy': 0.0,
+                            'behavior_accuracy': 0.0,
+                            'natural_accuracy': 0.0,
+                            'guard_tags': 0.0,
+                            'behavior_accuracy_without_lora': float(behavior_acc_without_lora_match.group(1)) if behavior_acc_without_lora_match else 0.0,
+                            'natural_accuracy_without_lora': float(natural_acc_without_lora_match.group(1)) if natural_acc_without_lora_match else 0.0,
+                         }
+                         print(f"  - Extracted only baseline metrics: {metrics_info}")
+                         metrics.append(metrics_info)
+                    else:
+                        print(f"  - No relevant metrics found in this file")
                     
         except Exception as e:
             print(f"Error processing file {report_file}: {str(e)}")
@@ -150,7 +175,13 @@ def compare_and_rank_results():
     
     # Display raw metrics
     print("\nExtracted metrics summary:")
-    print(metrics_df[['behavior', 'variation', 'mode', 'overall_accuracy', 'behavior_accuracy', 'natural_accuracy', 'guard_tags']].to_string(index=False))
+    # Expand columns displayed slightly to include baseline behavior accuracy
+    display_cols = ['behavior', 'variation', 'mode', 'overall_accuracy', 'behavior_accuracy', 'natural_accuracy', 'guard_tags', 'behavior_accuracy_without_lora']
+    # Only display columns that actually exist in the DataFrame
+    display_cols = [col for col in display_cols if col in metrics_df.columns]
+    print(metrics_df[display_cols].to_string(index=False))
+    
+
     
     # Calculate composite score (simple average of normalized ranks)
     # Handle division by zero by replacing 0 with 1 for normalization
@@ -180,6 +211,86 @@ def compare_and_rank_results():
     print("\nRanked results by composite score:")
     print(metrics_df[['behavior', 'variation', 'mode', 'composite_score', 'overall_accuracy', 'behavior_accuracy', 'natural_accuracy', 'guard_tags']].to_string(index=False))
     
+
+
+    print("\n\n--- Manuscript Table 1: Behavior Adherence Comparison (vary_all variation) ---")
+    try:
+        # Filter for the specific variation (e.g., 'vary_all')
+        df_vary_all = metrics_df[metrics_df['variation'] == 'vary_all'].copy()
+        
+        behaviors_order = ['meeting', 'politics', 'expert_opinion']
+        # Use nicer names for display
+        behavior_display_map = {'meeting': 'Meeting', 'politics': 'Politics', 'expert_opinion': 'Expert-Opinion'}
+        
+        table1_data = {}
+        
+        # Get Baseline (No Adapter) - Should be consistent across modes for the same behavior
+        baseline_data = df_vary_all[df_vary_all['mode'] == 'single'].set_index('behavior')['behavior_accuracy_without_lora'].to_dict()
+        table1_data['No Adapter'] = {behavior_display_map.get(b, b): baseline_data.get(b, pd.NA) for b in behaviors_order}
+
+        # Get Single Adapter 
+        single_data = df_vary_all[df_vary_all['mode'] == 'single'].set_index('behavior')['behavior_accuracy'].to_dict()
+        table1_data['Single Adapter'] = {behavior_display_map.get(b, b): single_data.get(b, pd.NA) for b in behaviors_order}
+
+        # Get Merged Adapter (assuming SVD)
+        merged_data = df_vary_all[df_vary_all['mode'] == 'merged_svd'].set_index('behavior')['behavior_accuracy'].to_dict()
+        table1_data['Merged Adapter'] = {behavior_display_map.get(b, b): merged_data.get(b, pd.NA) for b in behaviors_order}
+
+        # Create DataFrame for formatting
+        table1_df = pd.DataFrame(table1_data).T # Transpose to get modes as rows
+        # Reorder columns according to desired display
+        table1_df = table1_df[[behavior_display_map[b] for b in behaviors_order if behavior_display_map[b] in table1_df.columns]]
+        
+        if not table1_df.empty:
+            print(table1_df.to_string(float_format="%.1f", na_rep="N/A"))
+        else:
+            print("Could not generate Table 1: No data found for 'vary_all' variation with required modes (single, merged_svd).")
+            
+    except Exception as e:
+        print(f"Could not generate Table 1 due to error: {e}") 
+
+    print("\n\n--- Manuscript Table 2: Detailed Single Adapter Performance (vary_all variation) ---")
+    try:
+        # Filter for single adapter mode and vary_all variation
+        df_single_vary_all = metrics_df[(metrics_df['mode'] == 'single') & (metrics_df['variation'] == 'vary_all')].copy()
+        
+        if not df_single_vary_all.empty:
+            # Select and rename columns according to Table 2
+            table2_df = df_single_vary_all[[
+                'behavior', 
+                'behavior_accuracy',              # LoRA column
+                'natural_accuracy',              # Neutral column
+                'behavior_accuracy_without_lora', # Base column
+                'guard_tags'                     # Tags column
+            ]].copy()
+            
+            table2_df.rename(columns={
+                'behavior': 'Guardrail',
+                'behavior_accuracy': 'LoRA',
+                'natural_accuracy': 'Neutral',
+                'behavior_accuracy_without_lora': 'Base',
+                'guard_tags': 'Tags'
+            }, inplace=True)
+
+            # Use nicer behavior names
+            behavior_display_map_t2 = {'meeting': 'Meeting', 'politics': 'Politics', 'expert_opinion': 'Expert Op.'}
+            table2_df['Guardrail'] = table2_df['Guardrail'].map(behavior_display_map_t2).fillna(table2_df['Guardrail'])
+
+            # Set index to behavior for potentially easier ordering (optional)
+            table2_df = table2_df.set_index('Guardrail')
+            
+            # Reorder rows if needed (optional, based on desired presentation)
+            desired_row_order = ['Politics', 'Meeting', 'Expert Op.']
+            table2_df = table2_df.reindex([idx for idx in desired_row_order if idx in table2_df.index])
+
+            print(table2_df.to_string(float_format="%.1f"))
+        else:
+            print("Could not generate Table 2: No data found for 'single' mode and 'vary_all' variation.")
+            
+    except Exception as e:
+        print(f"Could not generate Table 2 due to error: {e}")
+    # --- End: Manuscript Table 2 ---
+
     # Save results to CSV
     output_file = "variation_comparison_results.csv"
     metrics_df.to_csv(output_file, index=False)

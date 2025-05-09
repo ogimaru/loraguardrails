@@ -560,8 +560,7 @@ def load_linear_merged_adapters(behaviors: List[str], config: TestingConfig):
             except Exception as e:
                 print(f"Error loading cached adapter: {str(e)}")
                 print("Will create a new merged adapter instead.")
-    
-    # If no cached adapter, proceed with merging on GPU
+     
     print("No cached linear merged adapter found. Creating merged adapter on GPU...")
     
     try:
@@ -615,12 +614,9 @@ def load_linear_merged_adapters(behaviors: List[str], config: TestingConfig):
             adapters.append(adapter)
         
         # Get the state dicts
-        state_dicts = [adapter.state_dict() for adapter in adapters]
-        
-        # Initialize merged state dict
+        state_dicts = [adapter.state_dict() for adapter in adapters] 
         merged_state_dict = {}
-        
-        # Merge each key in the state dicts
+         
         weights = [1.0 / len(adapters)] * len(adapters)
         print(f"Using equal weights: {weights}")
         
@@ -903,8 +899,7 @@ def analyze_adapter_comparison(report_dir: str):
     if summary_rows:
         print("\nExtracted metrics summary:")
         df = pd.DataFrame(summary_rows)
-        
-        # Only show these columns in the output - behavior column is first
+         
         print(df[["behavior", "variation", "mode", "overall_accuracy", "behavior_accuracy", "natural_accuracy", "guard_tags"]])
     
     print("\n" + "=" * 80)
