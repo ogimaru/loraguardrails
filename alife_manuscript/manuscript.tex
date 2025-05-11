@@ -167,7 +167,6 @@ With the hurdles posed by prompt engineering, a natural alternative is to fine-t
 The potentially more robust alignment, however, requires preparing a dataset for each persona, and risks overfitting on a fixed input. The additional cost associated with a new persona description, and the removal of real-time changes to the descriptions, are significant drawbacks.
 
 This work presents a method for aligning LLMs using instruction fine-tuning and preference optimization, creating reliable safeguards while maintaining flexible persona instructions. We carefully prepare training data for generalization and outline a framework where a single guardrail definition aligns the model. Meta-prompts automate synthetic dataset creation for generating Low-Rank Adaptation (LoRA) weights, synonymously referred to as guardrail adapters.  
-
 In addition, as part of the framework, we assess the guardrail efficacy, and find a consistent and reliable adherence to the desired behaviors when the guardrail adapters are applied, without a sizeable impact on the natural, safe, conversations.
 
 Using our method, we are able to detect and resolve unwanted behavior with near ideal accuracy for three separate behaviors; meeting up in person, discussing politics and offering expert advice. Furthermore, with a pre-processing step, we are able to reduce the interference between adapters and thereby stack multiple guardrails to be used simultaneously. In the following, we describe the method and evaluation process before concluding with a discussion of the results.
@@ -369,10 +368,8 @@ With this in mind, using the three guardrail adapters described in the work, we 
 \end{table}
 
 We found that a straightforward linear merging of the LoRA adapters yields unexpected behavior, resulting in nearly no instances of coherent and guardrail adhering responses when using the same test datasets. 
-Instead, we perform a singular value decomposition on the weighted combination of the adapters, truncate to the rank used for the LoRA adapter,
-(see~\cite{code}). The resulting merged adapter is able to detect and resolve triggering conversations from all three test sets. 
+Instead, we perform a singular value decomposition on the weighted combination of the adapters, truncate to the rank $r=16$, used for the LoRA adapter. The resulting merged adapter is able to detect and resolve triggering conversations from all three test sets. 
 We retain outputs that adhere to the guardrail definitions with a lower bound of \minGuardrailMergedEfficiency\% accuracy. We summarize our findings in the Tab.~\ref{tab:guardrail-effectiveness}, where merged adapter refers to the adapter resulting from the SVD-based merging of the LoRA adapters.
-
 
 \subsection{Future directions}
 As mentioned, guardrails generated using a dataset that overemphasizes the triggering behavior, can introduce unwanted behavior in neutral conversations  (e.g., unprompted topic switches to politics). While suitable as proof of concept, an important extension for future work is to enable generating training datasets to target also self-triggering responses. 
