@@ -78,8 +78,6 @@ The master script performs these tasks in sequence:
    - Creates training metrics plots
    - Creates detection efficiency plots
 
-The pipeline manages directory changes, GPU memory cleanup, and appropriate wait times between steps.
-
 If you prefer to run individual components separately, follow the detailed steps below.
 
 ### 1. Generate Training Data
@@ -116,7 +114,7 @@ Training configuration (`adapter_config.yaml`):
   - `learning_rate`: Learning rate for optimization
   - `eval_steps`: Evaluation frequency
   - `save_steps`: Checkpoint saving frequency
-- WandB configuration:
+- WandB configuration (not used by default):
   - `wandb_project`: Project name for tracking
   - `wandb_entity`: Optional entity name
   - `wandb_run_name`: Optional run name
@@ -140,21 +138,7 @@ python generate_multiple_adapters.py --behavior-type politics
 python generate_multiple_adapters.py --dataset-variation fixed_character
 
 # Generate a specific behavior with a specific variation
-python generate_multiple_adapters.py --behavior-type politics --dataset-variation fixed_character
-
-# Generate a specific behavior with all variations
-python generate_multiple_adapters.py --behavior-type politics --dataset-variation all
-
-# Generate all behaviors with all variations (generates all combinations)
-python generate_multiple_adapters.py --behavior-type all --dataset-variation all
-```
-
-For faster training on machines with more GPU memory:
-```yaml
-per_device_train_batch_size: 8  # Increase this
-gradient_accumulation_steps: 1  # Decrease this
-load_in_8bit: true              # Use 8-bit instead of 4-bit for better speed
-use_gradient_checkpointing: false # Disable if you have enough memory
+python generate_multiple_adapters.py --behavior-type politics --dataset-variation fixed_character 
 ```
 
 ### 3. Evaluate Adapters
@@ -177,12 +161,7 @@ The evaluation generates:
 To test a specific behavior:
 ```bash
 python run_all_behaviors_single.py --behavior politics
-```
-
-For more detailed debugging:
-```bash
-python testing_lora_adapters.py --adapter-path ../guardrail_adapter_generation/orpo_lora_adapters/orpo_model_politics_vary_all --behavior politics --debug
-```
+``` 
 
 For comparing with LlamaGuard (need togetherai api key):
 ```bash
@@ -216,10 +195,8 @@ Each guardrail consists of a trigger description and resolution instructions. Th
 We use ORPO (Odds Ratio Preference Optimization) to generate the LoRA adapters in `guardrail_adapter_generation/generate_guardrail_adapters.py`. 
 The key components are:
 
-1. **Dataset Preparation**: Organizing preferred and rejected examples
-2. **Model Quantization**: Using 4-bit quantization to reduce memory usage 
-4. **Weights & Biases Integration**: Experimental tracking in offline mode
-5. **Memory Optimization**: Enhanced memory management with synchronization points
+1. **Dataset Preparation**: Organizing preferred and rejected examples   
+2. **Converts to Llama format**: Ensures that the expected format for Llama models is satisfied.
 
 The training objective optimizes:
 - Maximizing likelihood for preferred responses
@@ -227,12 +204,7 @@ The training objective optimizes:
 
 ### Evaluation Methodology
 
-The evaluation in `guardrail_evaluation/testing_lora_adapters.py` measures:
-
-1. **Behavior Detection**: Testing if the model identifies target behaviors
-2. **Natural Preservation**: Testing if the model preserves non-target behaviors
-3. **False Positive Analysis**: Measuring incorrect classifications
-4. **Adapter Merging**: Improved support for combining multiple guardrail adapters
+The evaluation in `guardrail_evaluation/testing_lora_adapters.py`. 
 
 The evaluation results include:
 - Detailed reports in the `behavior_reports/` directory
@@ -248,33 +220,20 @@ When comparing variations with `run_all_variations.py`, the output provides:
 - A composite score ranking that combines overall accuracy, behavior accuracy, and natural handling
 - CSV output for further analysis in `variation_comparison_results.csv`
 
-### Key Implementation Notes
+### Implementation Notes 
 
-1. **Compatibility Issues**: `save_steps` must be a multiple of `eval_steps` when using `load_best_model_at_end=true`
-
-2. **Memory Management**: 
-   - 8-bit quantization is faster than 4-bit but uses more memory
-   - Gradient checkpointing trades speed for memory efficiency
-   - Flash attention accelerates training on supported hardware
-   - Custom memory tracking provides insight into GPU usage patterns
-
-3. **Metrics File Naming Convention**:
+1. **Metrics File Naming Convention**:
    Each behavior's metrics are saved as:
    ```
    metrics_{behavior}_{adapter_mode}_{variation}.json
    ```
    Example: `metrics_politics_single_vary_all.json`
 
-4. **Training Metrics**:
+2. **Training Metrics**:
    Training metrics are saved during adapter generation at:
    ```
    guardrail_adapter_generation/orpo_lora_adapters/orpo_model_{behavior}_{variation}/metrics/training_metrics_{behavior}.csv
-   ```
-   
-5. **Weights & Biases Integration**:
-   - Now operates in offline mode by default (`WANDB_MODE=offline`)
-   - Reports are stored locally without requiring internet connectivity
-   - Training runs can be analyzed offline using WandB local UI
+   ``` 
 
 ## Extending the Codebase
 
@@ -329,37 +288,7 @@ During adapter training, checkpoints are saved at regular intervals (controlled 
    ```
 
 This allows you to analyze how the adapter's performance evolves during training and identify the optimal checkpoint.
-
-## Troubleshooting
-
-### CUDA Out of Memory Errors
-
-If you encounter CUDA out-of-memory errors:
-1. Reduce batch size: `per_device_train_batch_size: 1`
-2. Increase gradient accumulation: `gradient_accumulation_steps: 8`
-3. Enable 4-bit quantization: `load_in_4bit: true`
-4. Enable gradient checkpointing: `use_gradient_checkpointing: true` 
-
-### Training Issues
-
-- **Incompatible eval_steps and save_steps**:
-  Ensure `save_steps` is a multiple of `eval_steps`:
-  ```yaml
-  eval_steps: 12
-  save_steps: 24  # 24 is a multiple of 12
-  ``` 
-
-- **WandB Issues**:
-  - WandB now operates in offline mode by default
-  - If you want to sync to the cloud, set `WANDB_MODE=online` in your environment
-
-### Missing Metrics Files
-
-If metrics files are missing after evaluation:
-1. Check the output path in `testing_lora_adapters.py`
-2. Verify that the behavior name matches exactly
-3. Check console output for any file saving errors
-
+  
 ## Contact
 
 For issues, questions, or contributions, please submit an issue or pull request to the repository. 
